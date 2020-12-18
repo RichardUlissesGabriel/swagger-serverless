@@ -1,0 +1,12 @@
+{
+    "headers" : {
+        "srckey" : "0fcc8de14ec3751aa728f7487b699829",
+        "key" : "eb362d776381762cb42cb74be63dac4b",
+        "Content-Type" : "application\/json,"
+    },
+    "methodArn": "arn:aws:execute-api:us-east-1:225399513320:flx5fclj5e/ESTestInvoke-stage/GET/",
+    "path":"/teste/teste",
+    "stage-variables" : {
+      "SERVERLESS_ALIAS" : "dev"
+    }
+}

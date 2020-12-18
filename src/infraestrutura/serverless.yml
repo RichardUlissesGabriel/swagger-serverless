@@ -1,0 +1,87 @@
+# Criação: serverless deploy --stage=dev --accountDeploy=dev --aws-profile <Usuário  AWS> -v
+service: api-gateway-documentation-infrastructure
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+
+  deploymentBucket:
+    name: ${file(./serverless-env.yml):deploymentBucket} # Nome do bucket S3 utilizado para armazenar os arquivos de deploy
+
+  bucketName: api-gateway-documentation-${self:provider.stage}
+  originDomainName: ${self:provider.bucketName}.s3-website-${self:provider.region}.amazonaws.com
+
+resources:
+  Resources:
+
+    DocBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.bucketName}
+        WebsiteConfiguration:
+          ErrorDocument: index.html
+          IndexDocument: index.html
+
+    Distribution:
+      Type: AWS::CloudFront::Distribution
+      DependsOn: DocBucket
+      Properties:
+        DistributionConfig:
+          Comment: Distribution used to referencing documentation static website
+          DefaultCacheBehavior:
+            ForwardedValues:
+              Cookies:
+                Forward: none
+              QueryString: false
+            TargetOriginId: S3-Website-${self:provider.originDomainName}
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: false
+            MinTTL: 0
+            MaxTTL: 31536000
+            DefaultTTL: 86400
+            SmoothStreaming: false
+          Enabled: true
+          Origins:
+            -
+              DomainName: ${self:provider.originDomainName}
+              Id: S3-Website-${self:provider.originDomainName}
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: http-only
+                OriginKeepaliveTimeout: 5
+                OriginReadTimeout: 30
+              OriginPath: ''
+          DefaultRootObject: '/index.html'
+          HttpVersion: http2
+          ViewerCertificate:
+            AcmCertificateArn: ${file(./serverless-env-${self:provider.accountDeploy}.yml):certificateArn}
+            MinimumProtocolVersion: TLSv1.1_2016
+            SslSupportMethod: sni-only
+
+    cloudFrontURL:
+      Type: AWS::SSM::Parameter
+      DependsOn: Distribution
+      Properties:
+        Name: /apiGatewayDocumentation/${self:provider.stage}/CLOUDFRONT
+        DataType: text
+        Type: String
+        Description: cloudfront url to access static documentation page
+        Tier: Standard
+        Value:
+          Fn::GetAtt:
+            - Distribution
+            - DomainName
+
+package:
+  exclude:
+    - .git/**
+    - node_modules/aws-sdk/**
+    - .doc

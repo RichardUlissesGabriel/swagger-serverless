@@ -1,0 +1,57 @@
+# sls deploy --stage=dev --accountDeploy=dev
+service: ${self:provider.apiName}-${self:provider.stackName}
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'} # Define o stage utilizado
+
+  deploymentBucket:
+    name: ${file(./serverless-env.yml):deploymentBucket} # Nome do bucket S3 utilizado para armazenar os arquivos de deploy
+  role: ${file(./serverless-env.yml):role} # Define qual usuario IAM utilizado para permissões
+
+  # O nome da API eh um Atributo obrigatório para o funcionamento da estrutura
+  apiName: embed
+  stackName: documentation-page # Esse nome deve ser único para deploys no mesmo modulo, pois eh ele que define o nome da stack criada na AWS, Sugestão utilizar o nome da primeira função criada
+
+  environment:
+    NODE_PATH: "./:/opt/node_modules"
+
+custom:
+  # Para utilizacao do plugin para nomeação dos recursos
+  serverless-aws-resource-names:
+    source: ./configserverless/mapping.json
+    variables: # Variaveis para serem usadas dentro do mapping.json
+      apiNameMapping: ${self:provider.apiName}
+      stackNameMapping: ${self:provider.stackName}
+
+functions:
+  get:
+    handler: src/embed.get
+    # Utilizado o layer se preciso
+    layers:
+      - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:layer:MiddyDependenciesNodeModule-${self:provider.stage}:latest
+      - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:layer:MiddyDependenciesGetParameter-${self:provider.stage}:latest
+
+resources:
+  Resources:
+
+    lambdaARN:
+      Type: AWS::SSM::Parameter
+      DependsOn: GetLambdaFunction
+      Properties:
+        Name: /apiGatewayDocumentation/LAMBDA_ARN
+        DataType: text
+        Type: String
+        Description: lambda to embed static documentation page
+        Tier: Standard
+        Value:
+          Fn::GetAtt:
+            - GetLambdaFunction
+            - Arn
+
+plugins:
+  - 'serverless-pseudo-parameters'
+  - '@iesde/serverless-latest-layer-version'
+  - '@iesde/serverless-aws-resource-names'

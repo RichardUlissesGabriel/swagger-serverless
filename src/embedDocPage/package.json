@@ -1,0 +1,21 @@
+{
+  "name": "embed-documentation-page",
+  "version": "1.0.0",
+  "description": "serviço destinado a criação do embed da pagina estática de documentação para as apis",
+  "main": "src/handler.js",
+  "author": "Richard Ulisses Gabriel",
+  "license": "MIT",
+  "scripts": {
+    "deploy:dev": "npm i && SL_DEBUG=* serverless deploy --stage dev -v",
+    "deploy:test": "npm i && SL_DEBUG=* serverless deploy --stage test -v",
+    "deploy:prod": "npm i && SL_DEBUG=* serverless deploy --stage prod -v",
+    "deploy": "npm run deploy:dev",
+    "invoke-local": "./scripts/invoke-local.sh"
+  },
+  "devDependencies": {
+    "@richard/serverless-aws-resource-names": "^0.1.1",
+    "@richard/serverless-latest-layer-version": "^2.1.0",
+    "serverless-pseudo-parameters": "^2.5.0"
+  },
+  "dependencies": {}
+}

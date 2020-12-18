@@ -1,0 +1,8 @@
+domain:
+  "domain.com.br"
+certificate:
+  "*.domain.com.br"
+role:
+  arn:aws:iam::xxxxxxxxxxxxx:role/{role_execution}
+deploymentBucket:
+  serverless-deploys

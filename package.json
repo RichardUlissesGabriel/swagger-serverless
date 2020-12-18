@@ -1,38 +1,57 @@
 {
-  "name": "app",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.11.6",
-    "@testing-library/react": "^11.2.1",
-    "@testing-library/user-event": "^12.2.2",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-scripts": "4.0.0",
-    "swagger-ui-react": "^3.36.2"
-  },
+  "name": "swagger-serverless",
+  "version": "1.3.0",
+  "description": "Projeto responsável por armazenar todo backend da nova estrutura",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "create-service": "./scripts/create-service.sh",
+    "update-microservice": "./scripts/update-microservice.sh",
+    "update-version": "./scripts/update-version.sh",
+    "update-git-version": "./scripts/update-git-version.sh",
+    "init-project": "./scripts/init-project.sh",
+    "change-log": "auto-changelog -p",
+    "test": "jest",
+    "eslint": "eslint .",
+    "install": "npm run update-git-version",
+    "deploy:dev": "npm run deploy:dev --prefix src/embedDocPage/ && npm run deploy:dev --prefix src/infraestrutura && npm run deploy:dev --prefix src/static-page",
+    "deploy:test": "npm run deploy:test --prefix src/embedDocPage/ && npm run deploy:test --prefix src/infraestrutura && npm run deploy:test --prefix src/static-page",
+    "deploy:prod": "npm run deploy:prod --prefix src/embedDocPage/ && npm run deploy:prod --prefix src/infraestrutura && npm run deploy:prod --prefix src/static-page",
+    "deploy": "npm run deploy:dev"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true",
+      "pre-commit": "npm run update-version package && rm -rf CHANGELOG.md && auto-changelog -p && git add CHANGELOG.md package.json package-lock.json && lint-staged",
+      "post-commit": "npm run update-version tag && git push --tags"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "jest --bail --findRelatedTests",
+      "git add"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@commitlint/cli": "^9.0.1",
+    "@commitlint/config-conventional": "^9.0.1",
+    "@iesde/auto-changelog": "^2.1.0",
+    "commitizen": "^4.1.2",
+    "cz-conventional-changelog": "^3.2.0",
+    "eslint": "^7.3.1",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-absolute-import": "^1.4.4",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.2.5",
+    "jest": "26.0.0",
+    "lint-staged": "^10.2.11"
   }
 }

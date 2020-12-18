@@ -1,0 +1,17 @@
+{
+  "name": "infraestrutura",
+  "version": "1.0.0",
+  "description": "receita serverless para a criação do bucket s3 - cloudfront para utilização da documentação",
+  "main": "handler.js",
+  "scripts": {
+    "deploy:dev": "npm i && SL_DEBUG=* serverless deploy --stage dev -v",
+    "deploy:test": "npm i && SL_DEBUG=* serverless deploy --stage test -v",
+    "deploy:prod": "npm i && SL_DEBUG=* serverless deploy --stage prod -v",
+    "deploy": "npm run deploy:dev"
+  },
+  "author": "Richard Ulisses Gabriel",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless": "^1.61.0"
+  }
+}

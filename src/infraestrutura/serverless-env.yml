@@ -1,0 +1,8 @@
+deploymentBucket:
+  serverless-deploys
+domain:
+  "domain.com.br"
+certificate:
+  "*.domain.com.br"
+certificateArn:
+  arn:aws:acm:us-east-1:xxxxxxxxxxxx:certificate/1701223f-2291-4026-9e7c-404525a9e40f
